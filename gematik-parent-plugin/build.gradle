@@ -1,0 +1,142 @@
+plugins {
+    id 'java'
+}
+apply plugin: 'nu.studer.credentials'
+apply plugin: 'maven-publish'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group = 'de.gematik'
+version = file('version.txt').text.trim()
+
+dependencies {
+    compileOnly gradleApi()
+}
+
+task sourceJar(type: Jar) {
+    classifier "sources"
+    from sourceSets.main.allJava
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact(sourceJar) {
+                classifier = 'sources'
+            }
+
+            from components.java
+            if (project.hasProperty('signing.secretKeyRingFile')) {
+                customizePom(pom)
+
+                // create the sign pom artifact
+                pom.withXml {
+                    def pomFile = file("${project.buildDir}/generated-pom.xml")
+                    writeTo(pomFile)
+                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                    artifact(pomAscFile) {
+                        classifier = null
+                        extension = 'pom.asc'
+                    }
+                }
+
+
+                // create the signed artifacts
+                project.tasks.signArchives.signatureFiles.each {
+                    artifact(it) {
+                        def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                        if (matcher.find()) {
+                            println "CLASSIF: " + matcher.group(1)
+                            classifier = matcher.group(1)
+                        } else {
+                            println "CLASSIF: NULL"
+                            classifier = null
+                        }
+                        extension = 'jar.asc'
+                    }
+                }
+            }
+        }
+    }
+}
+
+def customizePom(pom) {
+    pom.withXml {
+        def root = asNode()
+
+        // add all items necessary for maven central publication
+        root.children().last() + {
+            resolveStrategy = Closure.DELEGATE_FIRST
+
+            description 'This Plugin adds functionality for Version handling with version.txt files'
+            name 'Gematik Gradle Plugins'
+            url 'https://github.com/gematik/gradlePlugins'
+            organization {
+                name 'de.gematik'
+                url 'https://github.com/gematik'
+            }
+            issueManagement {
+                system 'GitHub'
+                url 'https://github.com/gematik/gradlePlugins/issues'
+            }
+            licenses {
+                license {
+                    name 'Apache License 2.0'
+                    url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            scm {
+                url 'https://github.com/gematik/' + 'gradlePlugins'
+                connection 'scm:git:git://github.com/gematik/gradlePlugins.git'
+                developerConnection 'scm:git:ssh://git@github.com:gematik/gradlePlugins.git'
+            }
+            developers {
+                developer {
+                    name 'Gematik'
+                }
+            }
+        }
+    }
+}
+
+task deploy {
+    println ""
+    println ""
+    println "##################################################################################"
+    println "##################################################################################"
+    println ""
+    println ""
+    println "           ######   ######## ##     ##    ###    ######## #### ##    ## "
+    println "          ##    ##  ##       ###   ###   ## ##      ##     ##  ##   ##  "
+    println "          ##        ##       #### ####  ##   ##     ##     ##  ##  ##   "
+    println "          ##   #### ######   ## ### ## ##     ##    ##     ##  #####    "
+    println "          ##    ##  ##       ##     ## #########    ##     ##  ##  ##   "
+    println "          ##    ##  ##       ##     ## ##     ##    ##     ##  ##   ##  "
+    println "           ######   ######## ##     ## ##     ##    ##    #### ##    ## "
+    println ""
+    println ""
+    println "##################################################################################"
+    println "##################################################################################"
+    println ""
+    println ""
+    println "**********************************************************************************"
+    println "**********************************************************************************"
+    println "***********         Baut das Gematik Gradle Parent Plugin         ****************"
+    println "***********                                                       ****************"
+    println "**********************************************************************************"
+    println "**********************************************************************************"
+    println ""
+    println ""
+}
+
+uploadArchives.dependsOn createPublishTarget
+uploadArchives.dependsOn build
+publishToMavenLocal.dependsOn build
+deploy.dependsOn uploadArchives
+deploy.dependsOn publishToMavenLocal
