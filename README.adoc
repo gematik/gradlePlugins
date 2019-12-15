@@ -18,7 +18,7 @@ The Plugin provides the deploy task. This Task execute build, publishToMavenLoca
 [source,Groovy]
 buildscript {
     dependencies {
-        classpath "de.gematik:gematik-parent-plugin:1.1.0"
+        classpath "de.gematik:gematik-parent-plugin:1.1.1"
         }
 }
 apply plugin: "de.gematik.parent"
@@ -46,6 +46,7 @@ The Plugin search for tasks that provide artefacts. All with the following names
 * testSourceJar
 * adocJar
 * javadocJar
+* groovydocJar
 * androidTestSourceJar
 * apkRelease
 * apkReleaseUnsigned
@@ -70,7 +71,7 @@ task sourceJar(type: Jar) {
 [source,Groovy]
 buildscript {
     dependencies {
-        classpath "de.gematik:gematik-parent-plugin:1.1.0"
+        classpath "de.gematik:gematik-parent-plugin:1.1.1"
         }
 }
 apply plugin: "de.gematik.publish"

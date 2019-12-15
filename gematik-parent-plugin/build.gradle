@@ -1,6 +1,4 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
 apply plugin: 'nu.studer.credentials'
 apply plugin: 'maven-publish'
 apply plugin: 'groovy'
@@ -13,24 +11,61 @@ dependencies {
     compileOnly gradleApi()
 }
 
+if (project.hasProperty('signing.secretKeyRingFile')) {
+    apply plugin: 'signing'
+
+    signing {
+        sign configurations.archives
+        //sign publishing.publications.mavenJava
+    }
+    model {
+        tasks.generatePomFileForMavenJavaPublication {
+            destination = file("$buildDir/generated-pom.xml")
+        }
+        tasks.publishMavenJavaPublicationToMavenLocal {
+            dependsOn project.tasks.signArchives
+        }
+
+    }
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+    failOnError = false
+}
+
 task sourceJar(type: Jar) {
     classifier "sources"
     from sourceSets.main.allJava
 }
 
+task javadocJar(type: Jar) {
+    archiveClassifier.set("javadoc")
+    from "${project.buildDir}/docs/javadoc/"
+    into "${project.name}"
+}
+
+task groovydocJar(type: Jar) {
+    archiveClassifier.set("groovydoc")
+    from "${project.buildDir}/docs/groovydoc/"
+    into "${project.name}"
+}
+
 artifacts {
     archives jar
     archives sourceJar
+    archives javadocJar
+    archives groovydocJar
 }
 
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact(sourceJar) {
-                classifier = 'sources'
-            }
-
+            artifact sourceJar
+            artifact javadocJar
+            artifact groovydocJar
             from components.java
             if (project.hasProperty('signing.secretKeyRingFile')) {
                 customizePom(pom)
@@ -50,17 +85,26 @@ publishing {
                 // create the signed artifacts
                 project.tasks.signArchives.signatureFiles.each {
                     artifact(it) {
-                        def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                        def matcher = it.file =~ /-(sources|javadoc|groovydoc)\.jar\.asc$/
                         if (matcher.find()) {
-                            println "CLASSIF: " + matcher.group(1)
                             classifier = matcher.group(1)
                         } else {
-                            println "CLASSIF: NULL"
                             classifier = null
                         }
                         extension = 'jar.asc'
                     }
                 }
+            }
+        }
+    }
+}
+
+if (project.hasProperty('signing.secretKeyRingFile')) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                customizePom(pom)
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
             }
         }
     }
@@ -135,6 +179,8 @@ task deploy {
     println ""
 }
 
+build.dependsOn javadoc
+build.dependsOn groovydoc
 uploadArchives.dependsOn createPublishTarget
 uploadArchives.dependsOn build
 publishToMavenLocal.dependsOn build

@@ -18,6 +18,8 @@ package de.gematik.parent
 import de.gematik.parent.tasks.VersionSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.maven.MavenDeployment
+import org.gradle.api.plugins.MavenPlugin
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.plugins.signing.SigningPlugin
@@ -33,6 +35,7 @@ class PublishPlugin implements Plugin<Project> {
 
         project.getPlugins().apply(SigningPlugin.class);
         project.getPlugins().apply(MavenPublishPlugin.class);
+        project.getPlugins().apply(MavenPlugin.class);
 
         if (project.extensions.findByType(PublishPluginExtension) == null)
             project.extensions.create('gematikPublish', PublishPluginExtension)
@@ -43,6 +46,67 @@ class PublishPlugin implements Plugin<Project> {
                     t.dependsOn(project.tasks.getByName("versionset"));
                 }
             };
+        def gematikPublish = project.extensions.findByType(PublishPluginExtension)
+
+        if (project.hasProperty('signing.secretKeyRingFile')) {
+            project.signing {
+                sign project.configurations.archives
+            }
+            project.model {
+                project.tasks.generatePomFileForMavenJavaPublication {
+                    destination = project.file("$buildDir/generated-pom.xml")
+                }
+                project.tasks.publishMavenJavaPublicationToMavenLocal {
+                    dependsOn project.tasks.signArchives
+                }
+            }
+        }
+
+        if (project.hasProperty('signing.secretKeyRingFile')) {
+            project.tasks.uploadArchives {
+                repositories {
+                    mavenDeployer {
+                        pom.withXml {
+                            def root = asNode()
+
+                            // add all items necessary for maven central publication
+                            root.children().last() + {
+                                resolveStrategy = Closure.DELEGATE_FIRST
+
+                                description gematikPublish.description
+                                name gematikPublish.name
+                                url 'https://github.com/gematik/' + gematikPublish.gitHubProjectName
+                                organization {
+                                    name 'de.gematik'
+                                    url 'https://github.com/gematik'
+                                }
+                                issueManagement {
+                                    system 'GitHub'
+                                    url 'https://github.com/gematik/' + gematikPublish.gitHubProjectName + '/issues'
+                                }
+                                licenses {
+                                    license {
+                                        name 'Apache License 2.0'
+                                        url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                                    }
+                                }
+                                scm {
+                                    url 'https://github.com/gematik/' + gematikPublish.gitHubProjectName
+                                    connection 'scm:git:git://github.com/gematik/' + gematikPublish.gitHubProjectName + '.git'
+                                    developerConnection 'scm:git:ssh://git@github.com:gematik/' + gematikPublish.gitHubProjectName + '.git'
+                                }
+                                developers {
+                                    developer {
+                                        name 'gematik GmbH'
+                                    }
+                                }
+                            }
+                        }
+                        beforeDeployment { MavenDeployment deployment -> project.signing.signPom(deployment) }
+                    }
+                }
+            }
+        }
 
         project.afterEvaluate { p ->
             project.publishing.publications {
@@ -61,6 +125,9 @@ class PublishPlugin implements Plugin<Project> {
                     }
                     if (project.tasks.findByName("javadocJar") != null) {
                         artifact project.tasks.getByName("javadocJar")
+                    }
+                    if (project.tasks.findByName("groovydocJar") != null) {
+                        artifact project.tasks.getByName("groovydocJar")
                     }
                     if (project.tasks.findByName("androidTestSourceJar") != null) {
                         artifact project.tasks.getByName("androidTestSourceJar")
@@ -85,7 +152,6 @@ class PublishPlugin implements Plugin<Project> {
                         }
                     }
 
-                    def gematikPublish = project.extensions.findByType(PublishPluginExtension)
 
                     if (project.hasProperty('signing.secretKeyRingFile')) {
                         pom.withXml {
