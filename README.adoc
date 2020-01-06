@@ -18,7 +18,7 @@ The Plugin provides the deploy task. This Task execute build, publishToMavenLoca
 [source,Groovy]
 buildscript {
     dependencies {
-        classpath "de.gematik:gematik-parent-plugin:1.1.1"
+        classpath "de.gematik:gematik-parent-plugin:1.1.2"
         }
 }
 apply plugin: "de.gematik.parent"
@@ -37,6 +37,7 @@ gematikPublish {
 	name = "Gematik Projectname"
 	description = "Information about the project"
 	gitHubProjectName = "name of gematik githubproject without .git"
+    developerEMail = "if not set is 'referenzimplementierung@gematik.de' default value"
 }
 
 === Signing Artefacts
@@ -71,7 +72,7 @@ task sourceJar(type: Jar) {
 [source,Groovy]
 buildscript {
     dependencies {
-        classpath "de.gematik:gematik-parent-plugin:1.1.1"
+        classpath "de.gematik:gematik-parent-plugin:1.1.2"
         }
 }
 apply plugin: "de.gematik.publish"

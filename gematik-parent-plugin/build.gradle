@@ -142,7 +142,11 @@ def customizePom(pom) {
             }
             developers {
                 developer {
-                    name 'Gematik'
+                    name 'gematik'
+                    email 'referenzimplementierung@gematik.de'
+                    url 'https://gematik.github.io/'
+                    organization 'gematik'
+                    organizationUrl 'https://www.gematik.de/'
                 }
             }
         }
@@ -171,7 +175,7 @@ task deploy {
     println ""
     println "**********************************************************************************"
     println "**********************************************************************************"
-    println "***********         Baut das Gematik Gradle Parent Plugin         ****************"
+    println "***********           Build Gematik Gradle Parent Plugin          ****************"
     println "***********                                                       ****************"
     println "**********************************************************************************"
     println "**********************************************************************************"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 gematik GmbH
+ * Copyright (c) 2020 gematik GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ class PublishPlugin implements Plugin<Project> {
                 }
             };
         def gematikPublish = project.extensions.findByType(PublishPluginExtension)
+        def developerEMail = gematikPublish.developerEMail != null ? gematikPublish.developerEMail : 'referenzimplementierung@gematik.de'
 
         if (project.hasProperty('signing.secretKeyRingFile')) {
             project.signing {
@@ -97,7 +98,11 @@ class PublishPlugin implements Plugin<Project> {
                                 }
                                 developers {
                                     developer {
-                                        name 'gematik GmbH'
+                                        name 'gematik'
+                                        email developerEMail
+                                        url 'https://gematik.github.io/'
+                                        organization 'gematik'
+                                        organizationUrl 'https://www.gematik.de/'
                                     }
                                 }
                             }
@@ -185,7 +190,11 @@ class PublishPlugin implements Plugin<Project> {
                                 }
                                 developers {
                                     developer {
-                                        name 'gematik GmbH'
+                                        name 'gematik'
+                                        email developerEMail
+                                        url 'https://gematik.github.io/'
+                                        organization 'gematik'
+                                        organizationUrl 'https://www.gematik.de/'
                                     }
                                 }
                             }

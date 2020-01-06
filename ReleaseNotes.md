@@ -1,3 +1,6 @@
+# Release 1.1.2
+- extends developer infos
+
 # Release 1.1.1
 - Add Javadoc and Groovydoc to Build
 - Correct Pom generation for uploadArchives
