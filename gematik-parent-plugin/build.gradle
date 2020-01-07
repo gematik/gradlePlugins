@@ -145,7 +145,7 @@ def customizePom(pom) {
                     name 'gematik'
                     email 'referenzimplementierung@gematik.de'
                     url 'https://gematik.github.io/'
-                    organization 'gematik'
+                    organization 'gematik GmbH'
                     organizationUrl 'https://www.gematik.de/'
                 }
             }

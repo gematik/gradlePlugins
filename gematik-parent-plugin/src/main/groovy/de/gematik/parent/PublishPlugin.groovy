@@ -101,7 +101,7 @@ class PublishPlugin implements Plugin<Project> {
                                         name 'gematik'
                                         email developerEMail
                                         url 'https://gematik.github.io/'
-                                        organization 'gematik'
+                                        organization 'gematik GmbH'
                                         organizationUrl 'https://www.gematik.de/'
                                     }
                                 }
@@ -193,7 +193,7 @@ class PublishPlugin implements Plugin<Project> {
                                         name 'gematik'
                                         email developerEMail
                                         url 'https://gematik.github.io/'
-                                        organization 'gematik'
+                                        organization 'gematik GmbH'
                                         organizationUrl 'https://www.gematik.de/'
                                     }
                                 }

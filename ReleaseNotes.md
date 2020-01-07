@@ -1,3 +1,6 @@
+# Release 1.1.3
+- Typo in company name removed
+
 # Release 1.1.2
 - extends developer infos
 

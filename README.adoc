@@ -18,7 +18,7 @@ The Plugin provides the deploy task. This Task execute build, publishToMavenLoca
 [source,Groovy]
 buildscript {
     dependencies {
-        classpath "de.gematik:gematik-parent-plugin:1.1.2"
+        classpath "de.gematik:gematik-parent-plugin:1.1.3"
         }
 }
 apply plugin: "de.gematik.parent"
@@ -72,7 +72,7 @@ task sourceJar(type: Jar) {
 [source,Groovy]
 buildscript {
     dependencies {
-        classpath "de.gematik:gematik-parent-plugin:1.1.2"
+        classpath "de.gematik:gematik-parent-plugin:1.1.3"
         }
 }
 apply plugin: "de.gematik.publish"
