@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.gematik.parent
+package de.gematik.android.parent
 
+import de.gematik.parent.AbstractPublishPlugin
 import de.gematik.parent.tasks.VersionSet
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
@@ -30,20 +31,14 @@ class PublishPlugin extends AbstractPublishPlugin {
 
         addPlugins(project)
         addUploadArchives(project)
-        if (project.hasProperty('signing.secretKeyRingFile')) {
-            project.model {
-                project.tasks.generatePomFileForMavenJavaPublication {
-                    destination = project.file("$buildDir/generated-pom.xml")
-                }
-                project.tasks.publishMavenJavaPublicationToMavenLocal {
-                    dependsOn project.tasks.signArchives
-                }
-            }
-        }
 
         project.afterEvaluate { p ->
             project.publishing.publications {
-                mavenJava(MavenPublication) {
+                aar(MavenPublication) {
+                    groupId project.getGroup()
+                    artifact("${project.buildDir}/outputs/aar/" + project.getName() + "-release.aar") {
+                    }
+
                     if (project.tasks.findByName("versionset") != null)
                         ((VersionSet) project.tasks.getByName("versionset")).versionSet()
                     println "Project-Version: " + project.version
@@ -62,6 +57,9 @@ class PublishPlugin extends AbstractPublishPlugin {
                     if (project.tasks.findByName("groovydocJar") != null) {
                         artifact project.tasks.getByName("groovydocJar")
                     }
+                    if (project.tasks.findByName("androidTestSourceJar") != null) {
+                        artifact project.tasks.getByName("androidTestSourceJar")
+                    }
                     for (int i = 1; i < 100; i++) {
                         if (project.tasks.findByName("additionalArtefact" + i) != null) {
                             artifact project.tasks.getByName("additionalArtefact" + i)
@@ -70,10 +68,11 @@ class PublishPlugin extends AbstractPublishPlugin {
                         }
                     }
 
-
                     if (project.hasProperty('signing.secretKeyRingFile')) {
                         pom.withXml {
                             def root = asNode()
+
+                            // add all items necessary for maven central publication
                             addPom(root)
                         }
 

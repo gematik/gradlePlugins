@@ -1,3 +1,6 @@
+# Release 1.2.0
+- add publish with signing plugin for Android AAR-Libraries
+
 # Release 1.1.3
 - Typo in company name removed
 
