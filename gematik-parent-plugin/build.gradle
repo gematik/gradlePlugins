@@ -1,5 +1,7 @@
 apply plugin: 'java'
-apply plugin: 'nu.studer.credentials'
+if (!project.buildscript.configurations.getByName("classpath").filter { a -> a.toString().contains("nu.studer") }.isEmpty()) {
+    apply plugin: 'nu.studer.credentials'
+}
 apply plugin: 'maven-publish'
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -16,7 +18,6 @@ if (project.hasProperty('signing.secretKeyRingFile')) {
 
     signing {
         sign configurations.archives
-        //sign publishing.publications.mavenJava
     }
     model {
         tasks.generatePomFileForMavenJavaPublication {
@@ -185,7 +186,9 @@ task deploy {
 
 build.dependsOn javadoc
 build.dependsOn groovydoc
-uploadArchives.dependsOn createPublishTarget
+if (project.tasks.findByName('createPublishTarget')) {
+    uploadArchives.dependsOn createPublishTarget
+}
 uploadArchives.dependsOn build
 publishToMavenLocal.dependsOn build
 deploy.dependsOn uploadArchives

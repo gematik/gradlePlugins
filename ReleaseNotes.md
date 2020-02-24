@@ -1,3 +1,7 @@
+# Release 1.2.1
+- remove required usage of credentials and sonarqube plugin
+ - fix bugs
+
 # Release 1.2.0
 - add publish with signing plugin for Android AAR-Libraries
 

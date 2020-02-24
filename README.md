@@ -23,7 +23,7 @@ The Plugin provides the deploy task. This Task execute build, publishToMavenLoca
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.2.0"
+            classpath "de.gematik:gematik-parent-plugin:1.2.1"
             }
     }
     apply plugin: "de.gematik.parent"
@@ -88,7 +88,7 @@ The Plugin search for tasks that provide artefacts. All with the following names
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.2.0"
+            classpath "de.gematik:gematik-parent-plugin:1.2.1"
             }
     }
     apply plugin: "de.gematik.publish"
@@ -99,7 +99,7 @@ The Plugin search for tasks that provide artefacts. All with the following names
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.2.0"
+            classpath "de.gematik:gematik-parent-plugin:1.2.1"
             }
     }
     apply plugin: "de.gematik.android.publish"

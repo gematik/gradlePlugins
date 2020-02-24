@@ -52,20 +52,28 @@ public class GematikParentPlugin implements Plugin<Project> {
         }
         project.getPlugins().apply(MavenPlugin.class);
         project.getPlugins().apply(MavenPublishPlugin.class);
-        project.getPlugins().apply(CheckstylePlugin.class);
-        project.getPlugins().apply("nu.studer.credentials");
+        final boolean foundNuStuder = !project.getBuildscript().getConfigurations().getByName("classpath").filter(a -> a.toString().contains("nu.studer")).isEmpty();
+        if (foundNuStuder) {
+            System.out.println("Add nu.studer.credentials Plugin");
+            project.getPlugins().apply("nu.studer.credentials");
+        }
         if (!project.getPlugins().hasPlugin("jacoco-android") && !project.getPlugins().hasPlugin("jacoco")) {
             project.getPlugins().apply("jacoco");
         }
-        if (!project.getPlugins().hasPlugin("org.sonarqube") && !project.getPlugins().hasPlugin("sonarqube")
+        final boolean foundOrgSonarsourceScannerGradle = !project.getBuildscript().getConfigurations().getByName("classpath")
+                .filter(a -> a.toString().contains("org.sonarsource.scanner.gradle")).isEmpty();
+        if (foundOrgSonarsourceScannerGradle && !project.getPlugins().hasPlugin("org.sonarqube") && !project.getPlugins().hasPlugin("sonarqube")
                 && !project.getRootProject().getPlugins().hasPlugin("org.sonarqube") && !project.getRootProject().getPlugins().hasPlugin("sonarqube")) {
+            System.out.println("Add org.sonarqube Plugin");
             project.getPlugins().apply("org.sonarqube");
         }
 
         configurePublishingExtension(project);
 
         final VersionSet versionSet = project.getTasks().create("versionset", VersionSet.class);
-        versionSet.dependsOn(CREATE_PUBLISH_TARGET);
+        if (project.getTasks().findByName("createPublishTarget") != null) {
+            versionSet.dependsOn(CREATE_PUBLISH_TARGET);
+        }
         project.getTasks().create("deploy", Deploy.class);
         setVersionForAllTasks(project, versionSet);
     }
