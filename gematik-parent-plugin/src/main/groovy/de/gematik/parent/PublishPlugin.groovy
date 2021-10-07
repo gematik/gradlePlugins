@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2020 gematik GmbH
+ * Copyright (c) 2021 gematik GmbH
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -29,18 +29,35 @@ class PublishPlugin extends AbstractPublishPlugin {
     void apply(Project project) {
 
         addPlugins(project)
-        addUploadArchives(project)
         if (project.hasProperty('signing.secretKeyRingFile')) {
             project.model {
-                project.tasks.generatePomFileForMavenJavaPublication {
-                    destination = project.file("$buildDir/generated-pom.xml")
-                }
                 project.tasks.publishMavenJavaPublicationToMavenLocal {
                     dependsOn project.tasks.signArchives
                 }
             }
+            project.signing {
+                sign project.publishing.publications.mavenJava
+            }
         }
 
+        project.afterEvaluate { p ->
+            project.publishing.repositories.maven {
+                if (project.hasProperty("SERVER_NEXUS_USERNAME") && project.hasProperty("SERVER_NEXUS_PASSWORD"))
+                {
+                    name = 'Nexus'
+                    credentials {
+                        username project.getProperty("SERVER_NEXUS_USERNAME")
+                        password project.getProperty("SERVER_NEXUS_PASSWORD")
+                    }
+                    if(project.version.endsWith('-SNAPSHOT')) {
+                        url project.getProperty("SNAPSHOT_REPOSITORY")
+                    } else {
+                        url project.getProperty("RELEASE_REPOSITORY")
+                    }
+                }
+
+            }
+        }
         project.afterEvaluate { p ->
             project.publishing.publications {
                 mavenJava(MavenPublication) {
@@ -77,29 +94,6 @@ class PublishPlugin extends AbstractPublishPlugin {
                             addPom(root)
                         }
 
-                        // create the signed artifacts
-                        project.tasks.signArchives.signatureFiles.each {
-                            artifact(it) {
-                                def matcher = it.file =~ /-${project.version}-(.*)\.jar\.asc$/
-                                if (matcher.find()) {
-                                    classifier = matcher.group(1)
-                                } else {
-                                    classifier = null
-                                }
-                                extension = 'jar.asc'
-                            }
-                        }
-
-                        // create the sign pom artifact
-                        pom.withXml {
-                            def pomFile = new File("${project.buildDir}/generated-pom.xml")
-                            writeTo(pomFile)
-                            def pomAscFile = project.signing.sign(pomFile).signatureFiles[0]
-                            artifact(pomAscFile) {
-                                classifier = null
-                                extension = 'pom.asc'
-                            }
-                        }
                     }
                 }
             }

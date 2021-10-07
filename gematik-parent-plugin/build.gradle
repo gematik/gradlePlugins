@@ -4,7 +4,9 @@ if (!project.buildscript.configurations.getByName("classpath").filter { a -> a.t
 }
 apply plugin: 'maven-publish'
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply plugin: 'jacoco'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
 
 group = 'de.gematik'
 version = file('version.txt').text.trim()
@@ -32,7 +34,6 @@ if (project.hasProperty('signing.secretKeyRingFile')) {
 
 javadoc {
     source = sourceSets.main.allJava
-    classpath = configurations.compile
     failOnError = false
 }
 
@@ -43,12 +44,14 @@ task sourceJar(type: Jar) {
 
 task javadocJar(type: Jar) {
     archiveClassifier.set("javadoc")
+    dependsOn("javadoc")
     from "${project.buildDir}/docs/javadoc/"
     into "${project.name}"
 }
 
 task groovydocJar(type: Jar) {
     archiveClassifier.set("groovydoc")
+    dependsOn("groovydoc")
     from "${project.buildDir}/docs/groovydoc/"
     into "${project.name}"
 }
@@ -62,6 +65,21 @@ artifacts {
 
 
 publishing {
+    repositories {
+        maven {
+            name = 'Nexus'
+            credentials {
+                username project.getProperty("SERVER_NEXUS_USERNAME")
+                password project.getProperty("SERVER_NEXUS_PASSWORD")
+            }
+            if(project.version.endsWith('-SNAPSHOT')) {
+                url project.getProperty("SNAPSHOT_REPOSITORY")
+            } else {
+                url project.getProperty("RELEASE_REPOSITORY")
+            }
+        }
+    }
+
     publications {
         mavenJava(MavenPublication) {
             artifact sourceJar
@@ -71,41 +89,9 @@ publishing {
             if (project.hasProperty('signing.secretKeyRingFile')) {
                 customizePom(pom)
 
-                // create the sign pom artifact
-                pom.withXml {
-                    def pomFile = file("${project.buildDir}/generated-pom.xml")
-                    writeTo(pomFile)
-                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
-                    artifact(pomAscFile) {
-                        classifier = null
-                        extension = 'pom.asc'
-                    }
+                project.signing {
+                    sign publishing.publications.mavenJava
                 }
-
-
-                // create the signed artifacts
-                project.tasks.signArchives.signatureFiles.each {
-                    artifact(it) {
-                        def matcher = it.file =~ /-(sources|javadoc|groovydoc)\.jar\.asc$/
-                        if (matcher.find()) {
-                            classifier = matcher.group(1)
-                        } else {
-                            classifier = null
-                        }
-                        extension = 'jar.asc'
-                    }
-                }
-            }
-        }
-    }
-}
-
-if (project.hasProperty('signing.secretKeyRingFile')) {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                customizePom(pom)
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
             }
         }
     }
@@ -144,7 +130,7 @@ def customizePom(pom) {
             developers {
                 developer {
                     name 'gematik'
-                    email 'referenzimplementierung@gematik.de'
+                    email 'software-development@gematik.de'
                     url 'https://gematik.github.io/'
                     organization 'gematik GmbH'
                     organizationUrl 'https://www.gematik.de/'
@@ -186,10 +172,7 @@ task deploy {
 
 build.dependsOn javadoc
 build.dependsOn groovydoc
-if (project.tasks.findByName('createPublishTarget')) {
-    uploadArchives.dependsOn createPublishTarget
-}
-uploadArchives.dependsOn build
+publish.dependsOn build
 publishToMavenLocal.dependsOn build
-deploy.dependsOn uploadArchives
+deploy.dependsOn publish
 deploy.dependsOn publishToMavenLocal

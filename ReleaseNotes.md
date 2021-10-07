@@ -1,3 +1,6 @@
+# Release 1.3.1
+Update for Gradle 7 support
+
 # Release 1.2.1
 - remove required usage of credentials and sonarqube plugin
  - fix bugs

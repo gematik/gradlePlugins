@@ -23,7 +23,7 @@ The Plugin provides the deploy task. This Task execute build, publishToMavenLoca
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.2.1"
+            classpath "de.gematik:gematik-parent-plugin:1.3.1"
             }
     }
     apply plugin: "de.gematik.parent"
@@ -45,7 +45,7 @@ general data about you project.
         name = "Gematik Projectname"
         description = "Information about the project"
         gitHubProjectName = "name of gematik githubproject without .git"
-        developerEMail = "if not set is 'referenzimplementierung@gematik.de' default value"
+        developerEMail = "email for developer contact"
     }
 
 ## Signing Artefacts
@@ -80,6 +80,21 @@ The Plugin search for tasks that provide artefacts. All with the following names
         include "**/*.java"
     }
 
+## Environment
+
+The gradle.properties or Environment need the following Variables. If you not publish artefakts set empty String
+
+**Publish configuration.**
+
+    #Username for publish Neuxs
+    ORG_GRADLE_PROJECT_SERVER_NEXUS_USERNAME=""
+    #Password for publish Neuxs
+    ORG_GRADLE_PROJECT_SERVER_NEXUS_PASSWORD=""
+    #Nexus URL to publish Snapshots
+    SNAPSHOT_REPOSITORY=""
+    #Nexus URL to publish Releases
+    RELEASE_REPOSITORY=""
+
 ## Getting Started
 
 ### Java Library/Application
@@ -88,7 +103,7 @@ The Plugin search for tasks that provide artefacts. All with the following names
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.2.1"
+            classpath "de.gematik:gematik-parent-plugin:1.3.1"
             }
     }
     apply plugin: "de.gematik.publish"
@@ -99,7 +114,7 @@ The Plugin search for tasks that provide artefacts. All with the following names
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.2.1"
+            classpath "de.gematik:gematik-parent-plugin:1.3.1"
             }
     }
     apply plugin: "de.gematik.android.publish"

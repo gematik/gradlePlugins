@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2020 gematik GmbH
+ * Copyright (c) 2021 gematik GmbH
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -19,7 +19,6 @@ import de.gematik.parent.PublishPluginExtension
 import de.gematik.parent.tasks.VersionSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.maven.MavenDeployment
 import org.gradle.api.plugins.MavenPlugin
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.plugins.signing.SigningPlugin
@@ -70,7 +69,6 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
         this.project = project;
         project.getPlugins().apply(SigningPlugin.class);
         project.getPlugins().apply(MavenPublishPlugin.class);
-        project.getPlugins().apply(MavenPlugin.class);
 
         if (project.extensions.findByType(PublishPluginExtension) == null)
             project.extensions.create('gematikPublish', PublishPluginExtension)
@@ -89,26 +87,8 @@ abstract class AbstractPublishPlugin implements Plugin<Project> {
         }
     }
 
-    protected void addUploadArchives(Project project) {
-        if (project.hasProperty('signing.secretKeyRingFile')) {
-            project.tasks.uploadArchives {
-                repositories {
-                    mavenDeployer {
-                        pom.withXml {
-                            def root = asNode()
-
-                            // add all items necessary for maven central publication
-                            addPom(root)
-                        }
-                        beforeDeployment { MavenDeployment deployment -> project.signing.signPom(deployment) }
-                    }
-                }
-            }
-        }
-    }
-
     protected String getDeveloperEMail() {
-        getPublishPluginExtension().developerEMail != null ? getPublishPluginExtension().developerEMail : 'referenzimplementierung@gematik.de'
+        getPublishPluginExtension().developerEMail != null ? getPublishPluginExtension().developerEMail : 'software-development@gematik.de'
     }
 
     protected PublishPluginExtension getPublishPluginExtension() {

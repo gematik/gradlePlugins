@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2020 gematik GmbH
+ * Copyright (c) 2021 gematik GmbH
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -22,7 +22,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.component.SoftwareComponent;
 import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.MavenPlugin;
 import org.gradle.api.plugins.quality.CheckstylePlugin;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
@@ -39,7 +38,7 @@ public class GematikParentPlugin implements Plugin<Project> {
 
     /**
      * If not an Android-Project automatic add Java-Plugin
-     * Additionally add {@link MavenPlugin}, {@link MavenPublishPlugin}, {@link CheckstylePlugin}, nu.studer.credentials Plugin, jacoco, sonarqube
+     * Additionally add {@link MavenPlugin}, {@link MavenPublishPlugin}, {@link CheckstylePlugin}, OWASP Plugin, jacoco Plugin, sonarqube Plugin
      * 
      * @param project
      */
@@ -50,12 +49,13 @@ public class GematikParentPlugin implements Plugin<Project> {
                 && !project.getPlugins().hasPlugin("com.android.instantapp")) {
             project.getPlugins().apply(JavaPlugin.class);
         }
-        project.getPlugins().apply(MavenPlugin.class);
         project.getPlugins().apply(MavenPublishPlugin.class);
-        final boolean foundNuStuder = !project.getBuildscript().getConfigurations().getByName("classpath").filter(a -> a.toString().contains("nu.studer")).isEmpty();
-        if (foundNuStuder) {
-            System.out.println("Add nu.studer.credentials Plugin");
-            project.getPlugins().apply("nu.studer.credentials");
+
+        final boolean foundOwasp = !project.getBuildscript().getConfigurations().getByName("classpath").filter(a -> a.toString().contains("dependency-check")).isEmpty();
+        if (foundOwasp && !project.getPlugins().hasPlugin("org.owasp.dependencycheck")) {
+            System.out.println("Add 'org.owasp.dependencycheck' Plugin");
+            project.getPlugins().apply("org.owasp.dependencycheck");
+
         }
         if (!project.getPlugins().hasPlugin("jacoco-android") && !project.getPlugins().hasPlugin("jacoco")) {
             project.getPlugins().apply("jacoco");

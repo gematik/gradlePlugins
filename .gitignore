@@ -2,3 +2,12 @@ TestProjekt/Project1/build/
 TestProjekt/Project1/.gradle/
 .gradle/
 InitExample/BS1/GitHub/secring.gpg
+.idea/
+
+githubPublish.jenkinsfile
+release.jenkinsfile
+githubBuild.jenkinsfile
+ciExtern.jenkinsfile
+ci.jenkinsfile
+TestProjekt/
+InitExample/
