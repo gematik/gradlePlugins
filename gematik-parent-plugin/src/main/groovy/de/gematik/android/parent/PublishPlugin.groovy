@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ class PublishPlugin extends AbstractPublishPlugin {
             project.publishing.repositories.maven {
                 name = 'GematikParent'
                 credentials {
-                    username project.getProperty("nexusUsername")
-                    password project.getProperty("nexusPassword")
+                    username project.getProperty("SERVER_NEXUS_USERNAME")
+                    password project.getProperty("SERVER_NEXUS_PASSWORD")
                 }
                 if(project.version.endsWith('-SNAPSHOT')) {
                     url project.getProperty("SNAPSHOT_REPOSITORY")

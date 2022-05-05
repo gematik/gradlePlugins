@@ -1,3 +1,6 @@
+# Release 1.3.2
+Update Properties Var Names
+
 # Release 1.3.1
 Update for Gradle 7 support
 

@@ -23,7 +23,7 @@ The Plugin provides the deploy task. This Task execute build, publishToMavenLoca
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.3.1"
+            classpath "de.gematik:gematik-parent-plugin:1.3.2"
             }
     }
     apply plugin: "de.gematik.parent"
@@ -103,7 +103,7 @@ The gradle.properties or Environment need the following Variables. If you not pu
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.3.1"
+            classpath "de.gematik:gematik-parent-plugin:1.3.2"
             }
     }
     apply plugin: "de.gematik.publish"
@@ -114,7 +114,7 @@ The gradle.properties or Environment need the following Variables. If you not pu
 
     buildscript {
         dependencies {
-            classpath "de.gematik:gematik-parent-plugin:1.3.1"
+            classpath "de.gematik:gematik-parent-plugin:1.3.2"
             }
     }
     apply plugin: "de.gematik.android.publish"
